@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-const { Configuration, OpenAIApi } = require("openai");
+const OpenAI = require("openai");
 require("dotenv").config();
 
 const app = express();
@@ -9,10 +9,9 @@ const port = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-const configuration = new Configuration({
+const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
-const openai = new OpenAIApi(configuration);
 
 const tareas = {
   "2.1_tarde": [
@@ -56,13 +55,13 @@ app.post("/ask", async (req, res) => {
       content: `Base de datos:\n${tareasString}`
     };
 
-    const completion = await openai.createChatCompletion({
+    const completion = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
       messages: [systemMessage, contextMessage, userMessage],
       temperature: 0.2,
     });
 
-    const respuesta = completion.data.choices[0].message.content;
+    const respuesta = completion.choices[0].message.content;
     res.json({ respuesta });
   } catch (error) {
     console.error(error);
